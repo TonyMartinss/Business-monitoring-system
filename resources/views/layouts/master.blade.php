@@ -123,7 +123,7 @@
                             </a>
                             <ul class="submenu ">
                                 <li class="submenu-item ">
-                                    <a href="{{ route('items.index') }}">Sales Report</a>
+                                    {{-- <a href="{{ route('items.index') }}">Sales Report</a> --}}
                                 </li>
 
                                 <li class="submenu-item ">
@@ -155,26 +155,27 @@
                         </a>
                         </li>
 
-                       
 
-                     
 
-                        
 
-                        
 
-                        <li class="sidebar-item  ">
+
+
+
+
+                        <li class="sidebar-item">
                             <a href="#" class='sidebar-link'
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bi bi-cash"></i>
-                                <span>Log Out</span>
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
                             </a>
 
                             <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                 style="display: none;">
-                                {{ csrf_field() }}
+                                @csrf
                             </form>
                         </li>
+
                     </ul>
                 </div>
                 <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
@@ -223,8 +224,7 @@
                         <p>2025 &copy; Edson Martins</p>
                     </div>
                     <div class="float-end">
-                        <p>Crafted </span> by <a
-                                href="http://ahmadsaugi.com">Edson Martins</a></p>
+                        <p>Crafted </span> by <a href="http://ahmadsaugi.com">Edson Martins</a></p>
                     </div>
                 </div>
             </footer>

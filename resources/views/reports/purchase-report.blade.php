@@ -43,7 +43,7 @@
                         @forelse($purchasesData as $index => $purchase)
                             <tr class="border-b hover:bg-gray-50">
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $purchase->purchase_date->format('Y-m-d H:i') }}</td>
+                               <td>{{ $purchase->created_at->format('Y-m-d H:i') }}</td>
                                 <td>{{ $purchase->supplier_name ?? '-' }}</td>
                                 <td>{{ $purchase->account->name ?? 'N/A' }}</td>
                                 <td class="fw-bold">{{ number_format($purchase->total_amount, 2) }}</td>

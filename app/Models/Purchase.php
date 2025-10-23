@@ -12,6 +12,7 @@ class Purchase extends Model
     // ✅ Define which fields can be mass-assigned
     protected $fillable = [
         'supplier_name',
+        'product_id',
         'total_amount',
         'account_id',
         'purchase_date',
@@ -28,6 +29,11 @@ class Purchase extends Model
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }
 

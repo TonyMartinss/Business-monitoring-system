@@ -10,18 +10,23 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ExpenseMovementController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PurchaseController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\LoginController;
 
+
+// redirect to login page if not authenticated
 
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-
-
-Route::get('/banana', function () {
+// Dashboard (protected)
+Route::get('/dashboard', function () {
     return view('welcome');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

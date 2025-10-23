@@ -42,7 +42,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>S/N</th>
-                        <th>Supplier</th>
+                        <th>Product</th>
                         {{-- <th>Reference No</th> --}}
                         <th>Total Amount (Tsh)</th>
                         <th>Payment Method</th>
@@ -55,11 +55,11 @@
                     @forelse($purchases as $index => $purchase)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $purchase->supplier_name }}</td>
+                             <td>{{ $purchase->product->name ?? 'N/A' }}</td>
                             {{-- <td>{{ $purchase->reference_no }}</td> --}}
                             <td class="fw-bold text-success">{{ number_format($purchase->total_amount, 2) }}</td>
                             <td>{{ ucfirst($purchase->account->name) }}</td>
-                            <td>{{ $purchase->purchase_date }}</td>
+                            <td>{{ $purchase->created_at->format('Y-m-d H:i') }}</td>
                             {{-- <td>{{ $purchase->notes ?: '-' }}</td> --}}
                             <td class="text-center">
                                 <form action="{{ route('purchase.destroy', $purchase->id) }}" method="POST" style="display:inline;">

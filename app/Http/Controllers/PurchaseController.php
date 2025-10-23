@@ -16,7 +16,8 @@ class PurchaseController extends Controller
     public function index()
     {
         // ✅ Fetch all purchases (latest first)
-        $purchases = Purchase::latest()->get();
+        $purchases = Purchase::with('product', 'account','user')->latest()->get();
+        
 
         // ✅ Calculate total purchase value
         $totalPurchases = $purchases->sum('total_amount');
@@ -56,6 +57,8 @@ class PurchaseController extends Controller
             ]
         ]);
 
+        $userId = Auth::id();
+
             // ✅ Step 1: Deduct cash from selected account
         record_cash_movement('out', $request->total_amount, $request->account, $request->notes);
 
@@ -63,9 +66,12 @@ class PurchaseController extends Controller
         Purchase::create([
             'supplier_name'  => $request->supplier_name,
             'total_amount'   => $request->total_amount,
+            'product_id'     => $request->product_id,
             'account_id'     => $request->account,
             'purchase_date'  => $request->date ,
             'notes'          => $request->notes ?? null,
+            'user_id' => Auth::id(),
+
         ]);
    
         record_stock_movement(
