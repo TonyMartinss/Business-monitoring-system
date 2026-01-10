@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('quantity')->default(0);
-            $table->decimal('selling_price', 8, 2);
             $table->decimal('purchase_price', 8, 2);
             $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('supplier_id')->nullable()->constrained()->onDelete('set null');

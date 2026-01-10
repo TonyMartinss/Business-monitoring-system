@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssignedUnit;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -49,7 +51,8 @@ class ItemController extends Controller
     {
         $categories = Category::all();
         $suppliers = Supplier::all();
-        return view('items.create', compact('categories', 'suppliers'));
+        $units = Unit::all();
+        return view('items.create', compact('categories', 'suppliers', 'units'));
     }
 
     public function store(Request $request)
@@ -58,18 +61,13 @@ class ItemController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'quantity' => 'required|integer|min:0',
-            'selling_price' => ['required', 'numeric', 'min:0', function ($attribute, $value, $fail) use ($request) {
-                if ($value < $request->input('purchase_price', 0)) {
-                    $fail('Selling price must be greater than or equal to purchase price.');
-                }
-            }],
             'purchase_price' => 'required|numeric|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'reorder_level' => 'required|integer|min:0',
             'damaged_quantity' => 'nullable|integer|min:0',
             'barcode' => 'nullable|string|max:255',
-            'expiry_date' => 'nullable|date|after:today',
+            'expiry_date' => 'nullable',
         ]);
 
         try {
@@ -88,7 +86,6 @@ class ItemController extends Controller
                 // Merge: increment quantity and update some fields (keep latest prices/info)
                 $existing->increment('quantity', $validated['quantity']);
 
-                $existing->selling_price = $validated['selling_price'];
                 $existing->purchase_price = $validated['purchase_price'];
                 $existing->reorder_level = $validated['reorder_level'];
 
@@ -117,6 +114,18 @@ class ItemController extends Controller
 
             // No existing product — create new
             $product = Product::create($validated);
+
+            foreach ($request->input('unit', []) as $key => $unitId) {
+                $content = $request->input('content')[$key] ?? null;
+                $price = $request->input('price')[$key] ?? null;
+                
+                AssignedUnit::create([
+                    'product_id' => $product->id,
+                    'unit_id' => $unitId,
+                    'content' => $content,
+                    'price' => $price,
+                ]);
+            }
 
             return redirect()->route('items.index')->with('success', 'Product added successfully!');
         } catch (\Exception $e) {

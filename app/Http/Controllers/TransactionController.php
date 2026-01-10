@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Transaction;
 use App\Models\Product;
 use App\Models\TransactionPayment;
@@ -28,7 +29,7 @@ class TransactionController extends Controller
             } elseif ($duration === 'monthly') {
                 $transactionsQuery->whereMonth('created_at', now()->month);
             }
-        }else {
+        } else {
             // Default to current month
             $transactionsQuery->whereDate('created_at', today());
         }
@@ -42,7 +43,7 @@ class TransactionController extends Controller
 
         $outstandingDebt = $transactions->sum('balance');
 
-        
+
 
         return view('transactions.transaction-index', compact(
             'transactions',
@@ -58,7 +59,9 @@ class TransactionController extends Controller
     {
         $items = Product::all(); // fetch latest stock
         $accounts = Account::all();
-        return view('transactions.transaction-create', compact('items', 'accounts'));
+        $customers = Customer::all(); // fetch all customers
+
+        return view('transactions.transaction-create', compact('items', 'accounts', 'customers'));
     }
 
     /**
@@ -67,43 +70,75 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_id'     => 'required|exists:products,id',
-            'quantity'       => 'required|integer|min:1',
-            'paid_amount'    => 'required|numeric|min:0',
-            'customer_name'  => 'nullable|string|max:255',
-            'customer_phone' => 'nullable|string|max:20',
+            // Products (arrays)
+            'product_id'   => 'required|array|min:1',
+            'product_id.*' => 'required|exists:products,id',
+
+            'price'        => 'required|array',
+            'price.*'      => 'required|numeric|min:0',
+
+            'qty'          => 'required|array',
+            'qty.*'        => 'required|integer|min:1',
+
+            'disc'         => 'nullable|array',
+            'disc.*'       => 'nullable|numeric|min:0',
+
+            // Payment
+            'paid_amount'  => 'required|numeric|min:0',
+            'account_id'   => 'required|exists:accounts,id',
+
+            // Customer
+            'customer_name'    => 'nullable|string|max:255',
+            'customer_phone'   => 'nullable|string|max:20',
+            'customer_address' => 'nullable|string|max:255',
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        record_stock_movement($product->id, 'out', $request->quantity, 'Sale', Auth::id());
+        // loop through each product and create individual transactions
+        $totalTransactionPrice = 0;
 
-        // Create transaction
-        $transaction = Transaction::create([
-            'product_id'     => $request->product_id,
-            'user_id'        => Auth::id(),
-            'quantity'       => $request->quantity,
-            'unit_price'     => $product->selling_price,
-            'customer_name'  => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-        ]);
+        foreach ($request->product_id as $index => $productId) {
+            // Get indiviadual values
+            $price = $request->price[$index];
+            $quantity = $request->qty[$index];
+            $discount = $request->disc[$index] ?? 0;
+            $totalPrice = ($price * $quantity) - $discount;
+            $totalTransactionPrice += $totalPrice;
 
-        // Record payment
-        if ($request->paid_amount > 0) {
-            TransactionPayment::create([
-                'transaction_id' => $transaction->id,
+            // Reduce stock
+            $product = Product::findOrFail($productId);
+            record_stock_movement($product->id, 'out', $quantity, 'Sale', Auth::id());
+
+            $product = Product::findOrFail($request->product_id);
+            record_stock_movement($product->id, 'out', $request->quantity, 'Sale', Auth::id());
+
+            // Create transaction
+            $transaction = Transaction::create([
+                'product_id'     => $request->product_id,
                 'user_id'        => Auth::id(),
-                'account_id'     => $request->account_id,
-                'amount'         => $request->paid_amount,
+                'quantity'       => $request->quantity,
+                'unit_price'     => $product->selling_price,
+                'customer_name'  => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
             ]);
 
-            // Record cash movement
-            if ($request->has('account_id')) {
-                record_cash_movement('in', $request->paid_amount, $request->account_id, 'Sale Payment');
-            }
-        }
+            // Record payment
+            if ($request->paid_amount > 0) {
+                TransactionPayment::create([
+                    'transaction_id' => $transaction->id,
+                    'user_id'        => Auth::id(),
+                    'account_id'     => $request->account_id,
+                    'amount'         => $request->paid_amount,
+                ]);
 
-        return redirect()->route('transactions.index')
-            ->with('success', 'Transaction recorded successfully.');
+                // Record cash movement
+                if ($request->has('account_id')) {
+                    record_cash_movement('in', $request->paid_amount, $request->account_id, 'Sale Payment');
+                }
+            }
+
+            return redirect()->route('transactions.index')
+                ->with('success', 'Transaction recorded successfully.');
+        }
     }
 
     /**
@@ -141,9 +176,9 @@ class TransactionController extends Controller
 
         return redirect()->route('transactions.index')
             ->with('success', 'Debt payment recorded successfully.');
-    }   
-       
-    
+    }
+
+
 
     /**
      * Delete a transaction and restore product stock.

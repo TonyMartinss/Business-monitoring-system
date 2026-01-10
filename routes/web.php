@@ -13,7 +13,10 @@ use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\LoginController;
-
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CustomerController;
 
 // redirect to login page if not authenticated
 
@@ -22,10 +25,17 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+
+
+
+// ======== ADMIN ADD USER ROUTES ========
+
 // Dashboard (protected)
 Route::get('/dashboard', function () {
     return view('welcome');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('transactions');
+
+
 
 
 Route::middleware('auth')->group(function () {
@@ -39,34 +49,44 @@ Route::middleware('auth')->group(function () {
     // Route::get('/items/{item}/edit', [ItemController::class, 'edit'])->name('items.edit');
     // Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
     // Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
-      
 
-    // Cash Movement Routes
+    //Admin User Registration Routes
 
-     Route::get('/cash-movements', [ReportController::class, 'cashMovements'])->name('cash-movements.index');
+    Route::get('/register', [AuthenticatedSessionController::class, 'create'])->name('register');
+
+    Route::get('/cash-movements', [ReportController::class, 'cashMovements'])->name('cash-movements.index');
     Route::get('/cash-movement/create', [ReportController::class, 'createCashMovement'])->name('cash-movement.create');
     Route::post('/cash-movement', [ReportController::class, 'storeCashMovement'])->name('cash-movement.store');
-     
+
     // Report Routes
-     Route::get('/reports/expense', [ReportController::class, 'expenseReport'])->name('expense.report');
+    Route::get('/reports/expense', [ReportController::class, 'expenseReport'])->name('expense.report');
     Route::get('/stock/report', [ReportController::class, 'stockReport'])->name('stock.report');
     Route::get('/cash/report', [ReportController::class, 'cashReport'])->name('cash.report');
     Route::get('/reports/purchase', [ReportController::class, 'purchaseReport'])->name('purchase.report');
 
-     //Expense Movement Routes
+    //Expense Movement Routes
 
     Route::get('/expenses', [ExpenseMovementController::class, 'index'])->name('expense.index');
     Route::get('/expenses/create', [ExpenseMovementController::class, 'create'])->name('expense.create');
     Route::post('/expenses/store', [ExpenseMovementController::class, 'store'])->name('expense.store');
     Route::get('/reports/expense', [ReportController::class, 'expenseReport'])->name('expense.report');
-     
+
     // Purchase Routes
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchase.index');
     Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchase.create');
     Route::post('/purchases/store', [PurchaseController::class, 'store'])->name('purchase.store');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchase.destroy');
 
-    
+    // customer routes 
+    Route::get('/customers', [CustomerController::class, 'customersIndex'])->name('customers.index');
+    Route::get('/customers/create', [CustomerController::class, 'createCustomer'])->name('customers.create');
+    Route::post('/customers/store', [CustomerController::class, 'storeCustomer'])->name('customers.store');
+    Route::get('/customers/{customer}/edit', [CustomerController::class, 'editCustomer'])->name('customers.edit');
+    Route::put('/customers/{customer}', [CustomerController::class, 'updateCustomer'])->name('customers.update');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroyCustomer'])->name('customers.destroy');
+    Route::get('/customers/{id}', [CustomerController::class, 'getCustomer']);
+
+
 
     Route::resource('items', ItemController::class);
     Route::resource('transactions', TransactionController::class);

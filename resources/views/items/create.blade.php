@@ -26,9 +26,42 @@
                     <label for="quantity">Quantity</label>
                     <input type="number" name="quantity" id="quantity" class="form-control" value="0" min="0">
 
-                    <label for="selling_price">Selling Price</label>
-                    <input type="number" name="selling_price" id="selling_price" class="form-control" step="0.01"
-                        required>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Unit</th>
+                                <th>Content</th>
+                                <th>Price</th>
+                                <th>
+                                    <button type="button" class="btn btn-primary btn-sm" id="add-unit-row">+ Add
+                                        Unit</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="assigned-units-tbody">
+                            <tr class="assigned-unit-row">
+                                <td>
+                                    <select name="unit[]" class="form-control" id="unit-0">
+                                        <option value="">-- Select Unit --</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" name="content[]" id="content-0" class="form-control"
+                                        placeholder="Content">
+                                </td>
+                                <td>
+                                    <input type="number" name="price[]" id="price-0" class="form-control" step="0.01"
+                                        placeholder="0.00" required>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <!-- Purchase Price -->
                     <label for="purchase_price">Purchase Price</label>
@@ -85,6 +118,48 @@
 
 @push('scripts')
     <script>
-        // This is where you can add page-specific JavaScript if needed
+        let rowCount = 1;
+
+        document.getElementById('add-unit-row').addEventListener('click', function() {
+            const tbody = document.getElementById('assigned-units-tbody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'assigned-unit-row';
+            newRow.innerHTML = `
+                <td>
+                    <select name="unit[]" id="unit-${rowCount}" class="form-control" required>
+                        <option value="">-- Select Unit --</option>
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <input type="text" name="content[]" id="content-${rowCount}" class="form-control"
+                        placeholder="Content">
+                </td>
+                <td>
+                    <input type="number" name="price[]" id="price-${rowCount}" class="form-control"
+                        step="0.01" placeholder="0.00" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            rowCount++;
+            attachRemoveListener(newRow.querySelector('.remove-row'));
+        });
+
+        function attachRemoveListener(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.closest('tr').remove();
+            });
+        }
+
+        // Attach listener to initial remove button
+        document.querySelectorAll('.remove-row').forEach(button => {
+            attachRemoveListener(button);
+        });
     </script>
 @endpush

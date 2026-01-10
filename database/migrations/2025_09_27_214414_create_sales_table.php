@@ -9,11 +9,15 @@ return new class extends Migration {
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // ties to Product
-            $table->integer('quantity')->default(1);
-            $table->decimal('selling_price', 12, 2);   // unit selling price at sale time
-            $table->decimal('purchase_price', 12, 2);  // unit purchase price at sale time
-            $table->decimal('total_price', 14, 2);     // quantity * selling_price
+            $table->date('sale_date');
+            $table->decimal('total', 12, 2);
+            $table->decimal('discount', 12, 2)->default(0);
+            $table->decimal('net', 12, 2);
+            $table->date('paid');
+            $table->date('due');
+            $table->enum('sale_type', ['cash', 'credit']);
+            $table->foreignId('account_id')->constrained('accounts')->onDelete('cascade');
+            $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->timestamps();
         });
     }

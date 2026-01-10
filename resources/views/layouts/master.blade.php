@@ -145,14 +145,16 @@
                             </ul>
                         </li>
 
-                        {{-- <li class="sidebar-item">
-              <a href="{{ route('admin.index') }}" class="sidebar-link">
-              <i class="bi bi-grid-1x2-fill"></i>
-                 <span>Admin</span>
-               </a>
-                </li> --}}
+                        <li class="">
+                            <a href="{{ route('transactions.index') }}" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Admin</span>
+                            </a>
 
-                        </a>
+
+                 
+
+                            </a>
                         </li>
 
 
@@ -216,12 +218,25 @@
                 <h3>@yield('page-heading')</h3>
             </div>
 
+            {{-- Flash Messages --}}
+            @if (session('success'))
+                <div style="background: #d1e7dd; color:#0f5132; padding:12px; border-radius:8px; margin:10px 0;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div style="background: #f8d7da; color:#842029; padding:12px; border-radius:8px; margin:10px 0;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @yield('content')
 
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">
-                        <p>2025 &copy; Edson Martins</p>
+                        <p>2026 &copy; Edson Martins</p>
                     </div>
                     <div class="float-end">
                         <p>Crafted </span> by <a href="http://ahmadsaugi.com">Edson Martins</a></p>

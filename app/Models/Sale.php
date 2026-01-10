@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,15 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 class Sale extends Model
 {
     protected $fillable = [
-        'product_id',
-        'quantity',
-        'selling_price',
-        'purchase_price',
-        'total_price',
+        'sale_date',
+        'total',
+        'discount',
+        'net',
+        'paid',
+        'due',
+        'sale_type',
+        'account_id',
+        'customer_id',
     ];
 
-    public function product()
+    // Sale belongs to an Account
+    public function account()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Account::class, 'account_id');
+    }
+
+    // Sale belongs to a Customer
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 }
