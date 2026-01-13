@@ -113,6 +113,7 @@
                                     <a href="{{ route('purchase.index') }}">My Purchases </a>
                                 </li>
 
+
                             </ul>
                         </li>
 
@@ -145,18 +146,25 @@
                             </ul>
                         </li>
 
+
                         <li class="">
-                            <a href="{{ route('transactions.index') }}" class='sidebar-link'>
+                            <a href="{{ route('profile.index') }}" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
-                                <span>Admin</span>
+                                <span>My Profile</span>
                             </a>
-
-
-                 
 
                             </a>
                         </li>
 
+
+                        <li class="">
+                            <a href="{{ route('admin.index') }}" class='sidebar-link'>
+                                <i class="bi bi-stack"></i>
+                                <span>Admin</span>
+                            </a>
+
+                            </a>
+                        </li>
 
 
 
@@ -255,6 +263,9 @@
     <!-- Page-specific scripts -->
 
     @stack('scripts')
+
+   
+
 </body>
 
 </html>

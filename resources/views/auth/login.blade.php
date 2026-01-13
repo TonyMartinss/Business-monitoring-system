@@ -48,9 +48,7 @@
             <button type="submit" class="btn">Login</button>
 
             <div class="register">
-                <p>Don’t have an account?
-                    <a href="{{ route('register') }}">Register</a>
-                </p>
+              
 
                 <a href="{{ route('password.request') }}" class="text-sm text-blue-500 hover:underline">
                     Forgot your password?

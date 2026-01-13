@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\UserProfileController;
 
 // redirect to login page if not authenticated
 
@@ -100,6 +101,31 @@ Route::get('/transactions/{transaction}/pay-debt', [TransactionController::class
 Route::post('/transactions/{transaction}/pay-debt', [TransactionController::class, 'payDebt'])
     ->name('transactions.payDebt'); // Submit payment
 
+// Admin Routes
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+
+    // Admin dashboard
+    Route::get('/user/list', [AdminController::class, 'index'])->name('admin.index');
+
+    // Show create user form
+    Route::get('/users/create', [AdminController::class, 'create'])->name('admin.create');
+
+    // Store new user
+    Route::post('/users/store', [AdminController::class, 'store'])->name('admin.store');
+
+    Route::get('/users/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
+    Route::put('/users/{id}', [AdminController::class, 'update'])->name('admin.update');
+
+    Route::delete('/users/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+});
+
+
+//Profile Routes
+Route::get('/profile', [UserProfileController::class, 'index'])->name('profile.index');
+Route::get('/profile/create', [UserProfileController::class, 'create'])->name('profile.create');
+Route::post('/profile/store', [UserProfileController::class, 'store'])->name('profile.store');
+Route::put('/profile/update', [UserProfileController::class, 'update'])->name('profile.update');
+Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
 
 require __DIR__ . '/auth.php';
 
